@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{#- the amount of logic in this template is evil #}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Score update functions</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+    <style type='text/css'>
+        .red { color: red; }
+        .blue { color: blue; }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+    {% for scenario in scenarios %}
+    <h1>{{ scenario.title }}</h1>
+
+    {%- for k in ("red", "blue") %}
+    <p><span class='{{ k }}'>{{ k|title }}</span>: {{ scenario[k].values()|map('score')|join(" ") }}</p>
+    {%- endfor %}
+    <p>Prediction: {{ predict(scenario.red, scenario.blue) }}</p>
+
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th>Function</th>
+                {%- for c in columns -%}
+                {%- set cls = 'red' if c.red > c.blue else 'blue' %}
+                <th cls='{{ cls }}'>{{ c.red }}:{{ c.blue }}</th>
+                {%- endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {%- for nm, fn in functions.items() %}
+            <tr>
+                <th scope='row'>{{ nm }}</th>
+                {%- for c in columns %}
+                <td>{{ fn(scenario.red, scenario.blue, c.red, c.blue)|scoredelta }}</td>
+                {%- endfor %}
+            </tr>
+            {%- endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+
+    </div>
+</body>
+</html>
