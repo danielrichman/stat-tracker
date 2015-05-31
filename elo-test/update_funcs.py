@@ -123,6 +123,27 @@ def binomial(reds, blues, red_score, blue_score):
     m = 2 * 0.069 * delta
     return m * s_red, m * s_blue
 
+def bin_invpmf(reds, blues, red_score, blue_score):
+    assert red_score >= 0 and blue_score >= 0
+    assert red_score + blue_score > 0
+    assert red_score != blue_score
+
+    E = _point_win_probability(reds, blues)
+
+    points = red_score + blue_score
+    red_expect = points * E
+
+    mag = 0.0005 / binom.pmf(red_score, points, E)
+    if red_score < red_expect:
+        dir = -1
+    elif red_score > red_expect:
+        dir = 1
+    else:
+        dir = 0
+
+    delta = mag * dir
+    return delta, -delta
+
 
 def predict_score(reds, blues, points=10):
     """
@@ -141,7 +162,8 @@ functions = {
     "linear": linear,
     "binomial": binomial,
     "fifth-prob": fifth_prob,
-    "fifth-delta": fifth_delta
+    "fifth-delta": fifth_delta,
+    "bin-invpmf": bin_invpmf
 }
 
 columns = [{"red": 10, "blue": i} for i in range(10)] + \
